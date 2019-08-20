@@ -6,6 +6,7 @@
     <string name="btn_apply">Применить</string>
     <string name="msg_file_error">File error</string>
     <string name="msg_request_denied">Request denied</string>
+    <string name="msg_file_not_exists_error">Файл не найден</string>
 
     <string name="btn_1">1</string>
     <string name="btn_2">2</string>

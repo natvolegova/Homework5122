@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_PERMISSION_READ_STORAGE = 10; //пользовательская переменная, определяем права доступа на чтение
 
     private Button btnSetting;
-    private LinearLayout activitySettings;
     private Button btnApply;
+    private LinearLayout aSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         btnSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activitySettings.setVisibility(View.VISIBLE);
+                aSettings.setVisibility(View.VISIBLE);
                 btnSetting.setVisibility(View.GONE);
             }
         });
@@ -46,18 +46,17 @@ public class MainActivity extends AppCompatActivity {
         btnApply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 //текущий статус разрешения на чтение READ_EXTERNAL_STORAGE
                 int permissionStatus = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
                 if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
                     //доступ разрешен, загружаем картинку
-                    LoadImg();
+                    loadImg();
                 } else {
                     //еше не было проверки, запрашиваем доступ
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_PERMISSION_READ_STORAGE);
                 }
                 //скрывем окно настроек
-                activitySettings.setVisibility(View.GONE);
+                aSettings.setVisibility(View.GONE);
                 btnSetting.setVisibility(View.VISIBLE);
             }
         });
@@ -65,21 +64,25 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         btnSetting = findViewById(R.id.btn_setting);
-        activitySettings = findViewById(R.id.activity_settings);
+        aSettings = findViewById(R.id.activity_settings);
         btnApply = findViewById(R.id.btn_apply);
     }
 
     //загрузка изображения
-    public void LoadImg() {
+    public void loadImg() {
         ImageView ivBackground = findViewById(R.id.iv_background);
         EditText etFilename = findViewById(R.id.et_filename);
-        String image_src = etFilename.getText().toString();
-
+        String imageSrc = etFilename.getText().toString();
         if (isExternalStorageReadable()) {
-            File file_src = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), image_src);
-            Bitmap image = BitmapFactory.decodeFile(file_src.getAbsolutePath());
-            ivBackground.setImageBitmap(image);
-            etFilename.setText("");
+            File fileSrc = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), imageSrc);
+            //проверяем существование файла
+            if (!fileSrc.exists()) {
+                Toast.makeText(this, getResources().getString(R.string.msg_file_not_exists_error), Toast.LENGTH_LONG).show();
+            } else {
+                Bitmap image = BitmapFactory.decodeFile(fileSrc.getAbsolutePath());
+                ivBackground.setImageBitmap(image);
+                etFilename.setText("");
+            }
         } else {
             Toast.makeText(this, getResources().getString(R.string.msg_file_error), Toast.LENGTH_LONG).show();
         }
@@ -100,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION_READ_STORAGE: //пользовательская переменная, доступ на чтение
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    LoadImg();
+                    loadImg();
                 } else {
                     //request denied
                     Toast.makeText(this, getResources().getString(R.string.msg_request_denied), Toast.LENGTH_LONG).show();
